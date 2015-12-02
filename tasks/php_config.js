@@ -7,44 +7,111 @@
  */
 
 'use strict';
+Array.prototype.clone = function() {
+    return this.slice(0);
+};
 
 module.exports = function(grunt) {
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
+    var constants = [];
 
-  grunt.registerMultiTask('php_config', 'Builds a PHP config and constants file', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
-    var options = this.options({
-      punctuation: '.',
-      separator: ', '
-    });
+    function makeConst(consts, parent, raw, allCaps) {
+        var k, kk, val, _raw, _allCaps, _parent;
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
-        } else {
-          return true;
+        for(k in consts) {
+            if(!consts.hasOwnProperty(k)) continue;
+
+            // props
+            val         = consts[k].value || consts[k]; // for shorthand
+            _raw        = consts[k].raw || raw; // override
+            _allCaps    = consts[k].allCaps || allCaps; // override
+
+            // add the constant
+            if(grunt.util.kindOf(val) === 'string')
+                constants.push({
+                    name: k,
+                    value: val,
+                    parent: parent,
+                    raw: _raw,
+                    allCaps: _allCaps
+                });
+
+            // loop through children
+            if(grunt.util.kindOf(consts[k]) === 'object') {
+                var hasMore = false;
+                _parent = parent.clone();
+                _parent.push(k);
+
+                for (kk in consts[k]) {
+                    if (!consts[k].hasOwnProperty(kk)) continue;
+                    if (['value', 'raw', 'allCaps'].indexOf(kk) >= 0) continue;
+                    hasMore = true;
+                    break;
+                }
+
+                if(hasMore)
+                    makeConst(consts[k], _parent, _raw, _allCaps);
+            }
         }
-      }).map(function(filepath) {
-        // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
+    }
 
-      // Handle options.
-      src += options.punctuation;
+    function write(type) {
+        var data, name, value;
 
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
+        switch(type) {
+            case 'php':
+                data = '<?php // Generated on ' + grunt.template.today('mmmm dS yyyy @ h:MM:ss TT') + '\n';
 
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
+                constants.forEach(function(v) {
+                    name = v.name;
+                    value = v.value;
+
+                    name = v.parent.join('\\') + '\\' + name;
+                    if(v.parent.length) // add to prefix first namespace
+                        name = '\\' + name;
+
+                    if(!v.raw)
+                        value = "'"+ grunt.config.escape(value) + "'";
+
+                    if(v.allCaps)
+                        name = name.toUpperCase();
+
+                    data += 'define(\''+ name +'\', '+ value +');\n';
+                });
+
+                break;
+
+            default:
+                grunt.fail.fatal('Unknown type '+ type);
+        }
+
+        return data;
+    }
+
+    grunt.registerMultiTask('php_config', 'Builds a PHP config and constants file', function() {
+        // Merge task-specific and/or target-specific options with these defaults.
+        var options = this.options({
+            type: 'php',
+            allCaps: true,
+            raw: false,
+
+            constants: null
+        }), out = '';
+
+        if (typeof options.constants === 'object') {
+            constants = [];
+            makeConst(options.constants, [], options.raw, options.allCaps);
+            out = write(options.type);
+
+            // all good?
+            if (!this.errorCount)
+                this.files.forEach(function (f) {
+                    grunt.file.write(f.dest, out);
+                });
+
+            grunt.log.ok(constants.length + ' constants saved in ' + options.type + ' file: ' + options.dest);
+        }
+
+        return !this.errorCount;
     });
-  });
-
 };
