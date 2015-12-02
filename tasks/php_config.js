@@ -12,11 +12,13 @@ Array.prototype.clone = function() {
 };
 
 module.exports = function(grunt) {
+    var sprintf = require('sprintf-js').sprintf;
+    var _ = require('lodash');
 
     var constants = [];
 
     function makeConst(consts, parent, raw, allCaps) {
-        var k, kk, val, _raw, _allCaps, _parent;
+        var k, val, _raw, _allCaps, _parent;
 
         for(k in consts) {
             if(!consts.hasOwnProperty(k)) continue;
@@ -37,21 +39,12 @@ module.exports = function(grunt) {
                 });
 
             // loop through children
-            if(grunt.util.kindOf(consts[k]) === 'object') {
-                var hasMore = false;
-                _parent = parent.clone();
-                _parent.push(k);
-
-                for (kk in consts[k]) {
-                    if (!consts[k].hasOwnProperty(kk)) continue;
-                    if (['value', 'raw', 'allCaps'].indexOf(kk) >= 0) continue;
-                    hasMore = true;
-                    break;
-                }
-
-                if(hasMore)
+            if(grunt.util.kindOf(consts[k]) === 'object')
+                if(_.without(Object.keys(consts[k]), 'value', 'raw', 'allCaps').length) {
+                    _parent = parent.clone();
+                    _parent.push(k);
                     makeConst(consts[k], _parent, _raw, _allCaps);
-            }
+                }
         }
     }
 
@@ -60,29 +53,28 @@ module.exports = function(grunt) {
 
         switch(type) {
             case 'php':
-                data = '<?php // Generated on ' + grunt.template.today('mmmm dS yyyy @ h:MM:ss TT') + '\n';
+                data = sprintf('<?php // Generated on %s\n', grunt.template.today('mmmm dS yyyy @ h:MM:ss TT'));
 
                 constants.forEach(function(v) {
                     name = v.name;
                     value = v.value;
 
-                    name = v.parent.join('\\') + '\\' + name;
-                    if(v.parent.length) // add to prefix first namespace
-                        name = '\\' + name;
+                    // add to prefix first namespace
+                    name = sprintf('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
 
                     if(!v.raw)
-                        value = "'"+ grunt.config.escape(value) + "'";
+                        value = sprintf("'%s'", grunt.config.escape(value));
 
                     if(v.allCaps)
                         name = name.toUpperCase();
 
-                    data += 'define(\''+ name +'\', '+ value +');\n';
+                    data += sprintf('define(\'%s\', %s);\n', name, value);
                 });
 
                 break;
 
             default:
-                grunt.fail.fatal('Unknown type '+ type);
+                grunt.fail.fatal(sprintf('Unknown type "%s".', type));
         }
 
         return data;
@@ -107,9 +99,9 @@ module.exports = function(grunt) {
             if (!this.errorCount)
                 this.files.forEach(function (f) {
                     grunt.file.write(f.dest, out);
+                    grunt.log.ok(sprintf('%d constants saved in %s file "%s"', constants.length, options.type, f.dest));
                 });
 
-            grunt.log.ok(constants.length + ' constants saved in ' + options.type + ' file: ' + options.dest);
         }
 
         return !this.errorCount;
