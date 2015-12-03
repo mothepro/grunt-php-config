@@ -43,7 +43,7 @@ Default value: `php`
 
 The type of file which will be generated
 
-`php` types create constants like `define(\\NAMESPACE\\NAME, VALUE);`
+`php` types create constants like `define('\\NAMESPACE\\NAME', 'VALUE');`
 
 #### options.constants
 Type: `Object`
