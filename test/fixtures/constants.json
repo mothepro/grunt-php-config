@@ -1,0 +1,11 @@
+{
+  "now": {
+    "value": "time()",
+    "raw": true
+  },
+  "name": "My App's Name",
+  "url": {
+    "css": "https://example.com/CSS/PATH/",
+    "img": "https://example.com/IMAGE/PATH/"
+  }
+}
