@@ -12,7 +12,7 @@ Array.prototype.clone = function() {
 };
 
 module.exports = function(grunt) {
-    var sprintf = require('sprintf-js').sprintf;
+    var util = require('util');
     var _ = require('lodash');
 
     var constants = [];
@@ -53,28 +53,28 @@ module.exports = function(grunt) {
 
         switch(type) {
             case 'php':
-                data = sprintf('<?php // Generated on %s\n', grunt.template.today('mmmm dS yyyy @ h:MM:ss TT'));
+                data = util.format('<?php // Generated on %s\n', grunt.template.today('mmmm dS yyyy @ h:MM:ss TT'));
 
                 constants.forEach(function(v) {
                     name = v.name;
                     value = v.value;
 
                     // add to prefix first namespace
-                    name = sprintf('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
+                    name = util.format('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
 
                     if(!v.raw)
-                        value = sprintf("'%s'", value.replace(/'/g, "\\'"));
+                        value = util.format("'%s'", value.replace(/'/g, "\\'"));
 
                     if(v.allCaps)
                         name = name.toUpperCase();
 
-                    data += sprintf('define(\'%s\', %s);\n', name, value);
+                    data += util.format('define(\'%s\', %s);\n', name, value);
                 });
 
                 break;
 
             default:
-                grunt.fail.fatal(sprintf('Unknown type "%s".', type));
+                grunt.fail.fatal(util.format('Unknown type "%s".', type));
         }
 
         return data;
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
         if (!this.errorCount)
             this.files.forEach(function (f) {
                 grunt.file.write(f.dest, out);
-                grunt.log.ok(sprintf('%d constants saved in %s file "%s"', constants.length, options.type, f.dest));
+                grunt.log.ok(util.format('%d %s saved in %s file "%s"', constants.length, grunt.util.pluralize(constants.length, "constant/constants"), options.type, f.dest));
             });
 
         return !this.errorCount;
