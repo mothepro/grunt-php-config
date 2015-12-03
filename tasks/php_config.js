@@ -63,7 +63,7 @@ module.exports = function(grunt) {
                     name = sprintf('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
 
                     if(!v.raw)
-                        value = sprintf("'%s'", grunt.config.escape(value));
+                        value = sprintf("'%s'", value.replace(/'/g, "\\'"));
 
                     if(v.allCaps)
                         name = name.toUpperCase();
