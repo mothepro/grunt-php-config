@@ -37,47 +37,94 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+#### options.type
 Type: `String`
-Default value: `',  '`
+Default value: `php`
 
-A string value that is used to do something with whatever.
+The type of file which will be generated
 
-#### options.punctuation
-Type: `String`
-Default value: `'.'`
+`php` types create constants like `define(\\NAMESPACE\\NAME, VALUE);`
 
-A string value that is used to do something else with whatever else.
+#### options.constants
+Type: `Object`
+Default value: `{}`
+
+This is where all the constants are specified.
+The key of the member will be the constant name, while the value can be either a string, or an object with the member `value`.
+
+```js
+{
+  name: "value",
+  build: {
+    value: "1.2"
+  }
+}
+```
+
+Other options may be specified in a specific constant.
+A generated file the constants will be a float and may look like this `define('BUILD', 1.2);`, (if the `type` is set to `php`).
+
+```js
+{
+  name: "value",
+  build: {
+    value: "1.2",
+    raw: true
+  }
+}
+```
+
+Constants may also be nested, to create namespaces.
+The following constants object will create the constant `\URL\STATIC\IMAGE` and set it to `FOO`.
+
+```js
+{
+    url: {
+        static: {
+            image: "FOO"
+        }
+    }
+}
+```
+
+#### options.allCaps
+Type: `Boolean`
+Default value: `true`
+
+Should the constant be in all capitals
+
+#### options.raw
+Type: `Boolean`
+Default value: `false`
+
+Typically constant values are escaped and put in quotes.
+However, if this is true the constant's value will be untouched.
 
 ### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+#### Options
+In this example, an empty `destination.php` file will be generated because no constants are specified.
 
 ```js
 grunt.initConfig({
   php_config: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+    dest: 'destination.php',
   },
 });
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
+#### Options
+In this example constants will be read from the config.json file and be embedded into `destination.php` as is.
 
 ```js
 grunt.initConfig({
   php_config: {
     options: {
-      separator: ': ',
-      punctuation: ' !!!',
+      constants: grunt.file.readJSON('config.json'),
+      raw: true,
+      allCaps: false,
     },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+    dest: 'destination.php',
   },
 });
 ```
