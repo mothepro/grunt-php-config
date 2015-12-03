@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     var constants = [];
 
     function makeConst(consts, parent, raw, allCaps) {
-        var k, val, _raw, _allCaps, _parent;
+        var k, val, _raw, _allCaps, _parent, kind;
 
         for(k in consts) {
             if(!consts.hasOwnProperty(k)) continue;
@@ -28,15 +28,21 @@ module.exports = function(grunt) {
             _raw        = consts[k].raw || raw; // override
             _allCaps    = consts[k].allCaps || allCaps; // override
 
-            // add the constant
-            if(grunt.util.kindOf(val) === 'string')
-                constants.push({
+            // add the constant if scalar
+            kind = grunt.util.kindOf(val);
+            if(['string', 'number', 'boolean', 'date', 'null'].indexOf(kind) >= 0) {
+                var c = {
                     name: k,
                     value: val,
                     parent: parent,
                     raw: _raw,
-                    allCaps: _allCaps
-                });
+                    allCaps: _allCaps,
+                    kind: kind
+                };
+                constants.push(c);
+
+                grunt.log.debug(c);
+            }
 
             // loop through children
             if(grunt.util.kindOf(consts[k]) === 'object')
@@ -62,7 +68,14 @@ module.exports = function(grunt) {
                     // add to prefix first namespace
                     name = util.format('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
 
-                    if(!v.raw)
+                    // standardize date string
+                    if(v.kind === 'date') {
+                        v.kind = 'string';
+                        v.value = v.value.toString();
+                    }
+
+                    // escape strings
+                    if(v.kind === 'string' && !v.raw)
                         value = util.format("'%s'", value.replace(/'/g, "\\'"));
 
                     if(v.allCaps)
@@ -92,6 +105,8 @@ module.exports = function(grunt) {
 
         // reset array
         constants = [];
+
+        grunt.log.debug(options.constants);
 
         if (options.constants)
             makeConst(options.constants, [], options.raw, options.allCaps);

@@ -7,5 +7,9 @@
   "url": {
     "css": "https://example.com/CSS/PATH/",
     "img": "https://example.com/IMAGE/PATH/"
+  },
+  "twelve": 12,
+  "important": {
+    "date": "2012-04-23T18:25:43.511Z"
   }
 }

@@ -3,3 +3,5 @@ define('\NOW', time());
 define('\NAME', 'My App\'s Name');
 define('\URL\CSS', 'https://example.com/CSS/PATH/');
 define('\URL\IMG', 'https://example.com/IMAGE/PATH/');
+define('\TWELVE', 12);
+define('\IMPORTANT\DATE', '2012-04-23T18:25:43.511Z');
