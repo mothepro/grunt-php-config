@@ -87,22 +87,22 @@ module.exports = function(grunt) {
             allCaps: true,
             raw: false,
 
-            constants: null
+            constants: {}
         }), out = '';
 
-        if (typeof options.constants === 'object') {
-            constants = [];
+        // reset array
+        constants = [];
+
+        if (options.constants)
             makeConst(options.constants, [], options.raw, options.allCaps);
-            out = write(options.type);
 
-            // all good?
-            if (!this.errorCount)
-                this.files.forEach(function (f) {
-                    grunt.file.write(f.dest, out);
-                    grunt.log.ok(sprintf('%d constants saved in %s file "%s"', constants.length, options.type, f.dest));
-                });
+        out = write(options.type);
 
-        }
+        if (!this.errorCount)
+            this.files.forEach(function (f) {
+                grunt.file.write(f.dest, out);
+                grunt.log.ok(sprintf('%d constants saved in %s file "%s"', constants.length, options.type, f.dest));
+            });
 
         return !this.errorCount;
     });
