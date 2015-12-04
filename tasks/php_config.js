@@ -65,8 +65,8 @@ module.exports = function(grunt) {
                     name = v.name;
                     value = v.value;
 
-                    // add to prefix first namespace
-                    name = util.format('%s%s\\%s', (v.parent.length ? '\\' : ''), v.parent.join('\\'), name);
+                    // Namespace of parents, followed by another '\' for parents
+                    name = v.parent.join('\\') + (v.parent.length ? '\\' : '') + name;
 
                     // standardize date string
                     if(v.kind === 'date') {
