@@ -116,7 +116,7 @@ module.exports = function(grunt) {
         if (!this.errorCount)
             this.files.forEach(function (f) {
                 grunt.file.write(f.dest, out);
-                grunt.log.ok(util.format('%d %s saved in %s file "%s"', constants.length, grunt.util.pluralize(constants.length, "constant/constants"), options.type, f.dest));
+                grunt.log.ok(util.format('%s %s saved in %s file %s.', constants.length.toString().cyan, grunt.util.pluralize(constants.length, "constant/constants"), options.type, f.dest.yellow));
             });
 
         return !this.errorCount;
