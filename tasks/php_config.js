@@ -17,7 +17,7 @@ module.exports = function(grunt) {
 
     var constants = [];
 
-    function makeConst(consts, parent, raw, allCaps) {
+    var makeConst = function(consts, parent, raw, allCaps) {
         var k, val, _raw, _allCaps, _parent, kind;
 
         for(k in consts) {
@@ -52,9 +52,9 @@ module.exports = function(grunt) {
                     makeConst(consts[k], _parent, _raw, _allCaps);
                 }
         }
-    }
+    };
 
-    function write(type) {
+    var write = function (type) {
         var data, name, value;
 
         switch(type) {
@@ -91,7 +91,7 @@ module.exports = function(grunt) {
         }
 
         return data;
-    }
+    };
 
     grunt.registerMultiTask('php_config', 'Builds a PHP config and constants file', function() {
         // Merge task-specific and/or target-specific options with these defaults.
