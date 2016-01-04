@@ -1,5 +1,8 @@
 # grunt-php-config
 [![Build Status](https://travis-ci.org/mothepro/grunt-php-config.svg?branch=master)](https://travis-ci.org/mothepro/grunt-php-config)
+[![npm version](https://badge.fury.io/js/grunt-php-config.svg)](https://badge.fury.io/js/grunt-php-config)
+[![Dependency Status](https://david-dm.org/mothepro/grunt-php-config.svg)](https://david-dm.org/mothepro/grunt-php-config)
+[![devDependency Status](https://david-dm.org/mothepro/grunt-php-config/dev-status.svg)](https://david-dm.org/mothepro/grunt-php-config#info=devDependencies)
 
 > Builds a PHP config and constants file
 
