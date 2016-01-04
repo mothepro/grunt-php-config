@@ -1,4 +1,5 @@
 # grunt-php-config
+[![Build Status](https://travis-ci.org/mothepro/grunt-php-config.svg?branch=master)](https://travis-ci.org/mothepro/grunt-php-config)
 
 > Builds a PHP config and constants file
 
